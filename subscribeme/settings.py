@@ -133,7 +133,7 @@ SOCIAL_AUTH_ENABLED_BACKENDS = (
 )
 
 import application_keys
-keys = applications_keys.subscribeme_keys
+keys = application_keys.subscribeme_keys
 
 TWITTER_CONSUMER_KEY         = keys.get('TWITTER_CONSUMER_KEY', '')
 TWITTER_CONSUMER_SECRET      = keys.get('TWITTER_CONSUMER_SECRET', '')
@@ -164,6 +164,7 @@ INSTALLED_APPS = (
 
     # 3rd-party reusable apps
     'social_auth',
+    'south',
 
     # Project apps
     'subscriptions',

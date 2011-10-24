@@ -29,5 +29,9 @@ class SerializedObjectField(fields.TextField):
 # SerializedObjectField, and got an error that directed me to
 # http://south.aeracode.org/wiki/MyFieldsDontWork
 #
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^subscriptions\.fields\.SerializedObjectField"])
+try:
+    from south.modelsinspector import add_introspection_rules
+    add_introspection_rules([], ["^subscriptions\.fields\.SerializedObjectField"])
+
+except ImportError:
+    pass

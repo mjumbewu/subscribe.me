@@ -5,7 +5,6 @@ from django.db import models
 import django.contrib.auth.models as auth
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-import haystack.query as haystack
 
 from subscriptions.fields import SerializedObjectField
 

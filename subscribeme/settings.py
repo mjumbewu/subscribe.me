@@ -11,8 +11,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'subscribeme.db',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -108,6 +108,48 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.twitter.TwitterBackend',
+#    'social_auth.backends.facebook.FacebookBackend',
+#    'social_auth.backends.google.GoogleOAuthBackend',
+#    'social_auth.backends.google.GoogleOAuth2Backend',
+#    'social_auth.backends.google.GoogleBackend',
+#    'social_auth.backends.yahoo.YahooBackend',
+#    'social_auth.backends.contrib.linkedin.LinkedinBackend',
+#    'social_auth.backends.contrib.livejournal.LiveJournalBackend',
+#    'social_auth.backends.contrib.orkut.OrkutBackend',
+#    'social_auth.backends.contrib.foursquare.FoursquareBackend',
+#    'social_auth.backends.contrib.github.GithubBackend',
+#    'social_auth.backends.OpenIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_ENABLED_BACKENDS = (
+#    'google',
+#    'google-oauth',
+#    'facebook',
+#    'github',
+    'twitter',
+)
+
+import application_keys
+keys = applications_keys.subscribeme_keys
+
+TWITTER_CONSUMER_KEY         = keys.get('TWITTER_CONSUMER_KEY', '')
+TWITTER_CONSUMER_SECRET      = keys.get('TWITTER_CONSUMER_SECRET', '')
+FACEBOOK_APP_ID              = keys.get('FACEBOOK_APP_ID', '')
+FACEBOOK_API_SECRET          = keys.get('FACEBOOK_API_SECRET', '')
+LINKEDIN_CONSUMER_KEY        = keys.get('LINKEDIN_CONSUMER_KEY', '')
+LINKEDIN_CONSUMER_SECRET     = keys.get('LINKEDIN_CONSUMER_SECRET', '')
+ORKUT_CONSUMER_KEY           = keys.get('ORKUT_CONSUMER_KEY', '')
+ORKUT_CONSUMER_SECRET        = keys.get('ORKUT_CONSUMER_SECRET', '')
+GOOGLE_CONSUMER_KEY          = keys.get('GOOGLE_CONSUMER_KEY', '')
+GOOGLE_CONSUMER_SECRET       = keys.get('GOOGLE_CONSUMER_SECRET', '')
+GOOGLE_OAUTH2_CLIENT_ID      = keys.get('GOOGLE_OAUTH2_CLIENT_ID', '')
+GOOGLE_OAUTH2_CLIENT_SECRET  = keys.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
+FOURSQUARE_CONSUMER_KEY      = keys.get('FOURSQUARE_CONSUMER_KEY', '')
+FOURSQUARE_CONSUMER_SECRET   = keys.get('FOURSQUARE_CONSUMER_SECRET', '')
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -119,6 +161,13 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+
+    # 3rd-party reusable apps
+    'social_auth',
+
+    # Project apps
+    'subscriptions',
+    'main',
 )
 
 # A sample logging configuration. The only tangible logging

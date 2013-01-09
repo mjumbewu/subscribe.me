@@ -1,5 +1,6 @@
 *.py[c|o]
 *~
 .env/
+env/
 
 application_keys.py

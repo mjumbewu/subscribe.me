@@ -1,4 +1,4 @@
 django
 django-social-auth
-django-icanhaz
+django-jstemplate
 south

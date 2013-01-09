@@ -16,7 +16,6 @@ from subscriptions.feeds import ContentFeedRecordCleaner
 from subscriptions.feeds import ContentFeedRecordUpdater
 from subscriptions.feeds import SubscriptionDispatcher
 from subscriptions.forms import SubscriptionForm
-from subscriptions.models import ContentFeedParameter
 from subscriptions.models import ContentFeedRecord
 from subscriptions.models import Subscriber
 from subscriptions.models import Subscription
@@ -39,7 +38,6 @@ class Test_Subscription_save (TestCase):
     def setUp(self):
         Subscriber.objects.all().delete()
         ContentFeedRecord.objects.all().delete()
-        ContentFeedParameter.objects.all().delete()
         Subscription.objects.all().delete()
 
         user = self.user = Subscriber(); user.save()
@@ -78,7 +76,6 @@ class Test_Subscriber_subscribe (TestCase):
     def setUp(self):
         Subscriber.objects.all().delete()
         ContentFeedRecord.objects.all().delete()
-        ContentFeedParameter.objects.all().delete()
         Subscription.objects.all().delete()
 
         ContentFeedLibrary().register(ContentFeed, 'generic content feed')
@@ -132,7 +129,6 @@ class Test_Subscriber_isSubscribed (TestCase):
     def setUp(self):
         Subscriber.objects.all().delete()
         ContentFeedRecord.objects.all().delete()
-        ContentFeedParameter.objects.all().delete()
         Subscription.objects.all().delete()
 
         library = self.library = ContentFeedLibrary(shared=False)
@@ -480,9 +476,7 @@ class Test_SubscriptionDispatcher_dispatch:
         subscription.last_sent = datetime.datetime(2011,1,1,0,0)
         subscription.feed_record.last_updated = datetime.datetime(2011,8,4,6,50)
         subscription.feed_record.feed_name = 'MockFeed'
-        param1 = Mock(); param1.name = 'p1'; param1.value = '1'
-        param2 = Mock(); param2.name = 'p2'; param2.value = '2'
-        subscription.feed.feed_params.all = lambda: [param1, param2]
+        subscription.feed.feed_params = {'p1': '1', 'p2': '2'}
         subscriber.subscriptions.all = lambda: [subscription]
 
     @istest

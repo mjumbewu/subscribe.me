@@ -16,13 +16,6 @@ from subscriptions import models
 #    model = LegAction
 #    extra = 1
 
-class ContentFeedParameterInline(admin.StackedInline):
-    model = models.ContentFeedParameter
-    extra = 0
-
-class ContentFeedRecordAdmin(admin.ModelAdmin):
-    inlines = [ContentFeedParameterInline]
-
 class SubscriptionDispatchRecordInline(admin.TabularInline):
     model = models.SubscriptionDispatchRecord
     extra = 0
@@ -33,7 +26,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Subscription, SubscriptionAdmin)
 admin.site.register(models.Subscriber)
-admin.site.register(models.ContentFeedRecord, ContentFeedRecordAdmin)
+admin.site.register(models.ContentFeedRecord)
 
 #admin.site.register(models.SearchSubscription)
 #admin.site.register(models.EmailChannel)

@@ -136,14 +136,8 @@ class ContentFeedLibrary (object):
 
         record = ContentFeedRecord()
         record.feed_name = name
+        record.feed_params = feed.get_params()
         record.save()
-
-        for param_name, param_value in feed.get_params().items():
-            param = ContentFeedParameter()
-            param.name = param_name
-            param.value = param_value
-            record.feed_params.add(param)
-            param.save()
 
         self._cache(feed, record)
 

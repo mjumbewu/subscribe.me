@@ -1,6 +1,7 @@
 import datetime
 import logging
 from django.db import models
+from jsonfield import JSONField
 
 import django.contrib.auth.models as auth
 from django.contrib.contenttypes.models import ContentType
@@ -31,9 +32,9 @@ class ContentFeedRecord (models.Model):
     feed_name = models.CharField(max_length=256)
     """The identifier for the content feed type registered with the library"""
 
-    # feed_params (backref)
-    """The set of parameters used to retrieve the content feed from the
-       library"""
+    feed_params = JSONField()
+    """A JSON blob representing the parameters used to retrieve the content
+       feed from the library"""
 
     last_updated = models.DateTimeField(default=datetime.datetime.min)
     """The stored value of the last time content in the feed was updated."""
@@ -45,20 +46,10 @@ class ContentFeedRecord (models.Model):
         if self.feed_name != other.feed_name:
             return False
 
-        other_params = other.feed_params.all().values('name', 'value')
-        for self_param in self.feed_params.all().values('name', 'value'):
-            if self_param not in other_params:
-                return False
+        if self.feed_params != other.feed_params:
+            return False
+
         return True
-
-
-class ContentFeedParameter (models.Model):
-    """One of the parameters used to retrieve the content feed from the
-       library"""
-
-    feed_record = models.ForeignKey(ContentFeedRecord, related_name='feed_params')
-    name = models.CharField(max_length=256)
-    value = models.TextField()
 
 
 # Subscriber
@@ -99,9 +90,9 @@ class Subscriber (auth.User):
                           (record.feed_name,))
                 return None
 
-            other_params = list(record.feed_params.values('name', 'value'))
+            other_params = record.feed_params
             for sub in subs:
-                self_params = list(sub.feed_record.feed_params.values('name', 'value'))
+                self_params = sub.feed_record
                 log.debug('Checking parameters %r against %r' %
                           (self_params, other_params))
                 if self_params == other_params:
@@ -109,28 +100,6 @@ class Subscriber (auth.User):
 
         except Subscription.DoesNotExist:
             return None
-
-
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-@receiver(post_save, sender=auth.User)
-def create_subscriber_for_user(sender, **kwargs):
-    """
-    Create a Subscriber object whenever a user is created.  This is useful so
-    that we don't have to patch whatever different registration processes we
-    end up using.
-    """
-    user = kwargs.get('instance')
-    created = kwargs.get('created')
-    raw = kwargs.get('raw')
-
-    logging.debug('user is %r' % user)
-
-    if created and not raw:
-        if not hasattr(user, 'subscriber') or user.subscriber is None:
-            user.subscriber = Subscriber()
-            user.subscriber.save()
-            logging.debug('created subscriber')
 
 
 class Subscription (models.Model):

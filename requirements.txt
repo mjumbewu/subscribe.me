@@ -2,3 +2,5 @@ django
 django-social-auth
 django-jstemplate
 south
+
+django-jsonfield

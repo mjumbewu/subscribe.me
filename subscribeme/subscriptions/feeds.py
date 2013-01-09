@@ -109,8 +109,7 @@ class ContentFeedLibrary (object):
             return self._feed_cache[record]
 
         ContentFeedClass = self.feeds[record.feed_name]
-        kwargs = dict([(param.name, param.value)
-                       for param in record.feed_params.all()])
+        kwargs = record.feed_params
         feed = ContentFeedClass(**kwargs)
 
         self._cache(feed, record)

@@ -132,24 +132,6 @@ SOCIAL_AUTH_ENABLED_BACKENDS = (
     'twitter',
 )
 
-import application_keys
-keys = application_keys.subscribeme_keys
-
-TWITTER_CONSUMER_KEY         = keys.get('TWITTER_CONSUMER_KEY', '')
-TWITTER_CONSUMER_SECRET      = keys.get('TWITTER_CONSUMER_SECRET', '')
-FACEBOOK_APP_ID              = keys.get('FACEBOOK_APP_ID', '')
-FACEBOOK_API_SECRET          = keys.get('FACEBOOK_API_SECRET', '')
-LINKEDIN_CONSUMER_KEY        = keys.get('LINKEDIN_CONSUMER_KEY', '')
-LINKEDIN_CONSUMER_SECRET     = keys.get('LINKEDIN_CONSUMER_SECRET', '')
-ORKUT_CONSUMER_KEY           = keys.get('ORKUT_CONSUMER_KEY', '')
-ORKUT_CONSUMER_SECRET        = keys.get('ORKUT_CONSUMER_SECRET', '')
-GOOGLE_CONSUMER_KEY          = keys.get('GOOGLE_CONSUMER_KEY', '')
-GOOGLE_CONSUMER_SECRET       = keys.get('GOOGLE_CONSUMER_SECRET', '')
-GOOGLE_OAUTH2_CLIENT_ID      = keys.get('GOOGLE_OAUTH2_CLIENT_ID', '')
-GOOGLE_OAUTH2_CLIENT_SECRET  = keys.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
-FOURSQUARE_CONSUMER_KEY      = keys.get('FOURSQUARE_CONSUMER_KEY', '')
-FOURSQUARE_CONSUMER_SECRET   = keys.get('FOURSQUARE_CONSUMER_SECRET', '')
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -190,3 +172,9 @@ LOGGING = {
         },
     }
 }
+
+# Override with local settings
+try:
+    from local_settings import *
+except ImportError:
+    pass

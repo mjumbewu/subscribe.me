@@ -1,6 +1,9 @@
 *.py[c|o]
 *~
+*.db
+local_settings.py
 .env/
 env/
+env?/
 
 application_keys.py

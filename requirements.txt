@@ -1,6 +1,36 @@
-django
-django-social-auth
-django-jstemplate
-south
+# ====================
+# Server
+# ====================
+gunicorn
+#Django
+https://www.djangoproject.com/download/1.5c1/tarball/
 
+
+
+# ====================
+# Authentication
+# ====================
+django-social-auth
+
+
+
+# ====================
+# Templating
+# ====================
+django-jstemplate
+
+
+
+# ====================
+# Database
+# ====================
+south
+psycopg2
+
+
+
+# ====================
+# Subscriptions App
+# ====================
 django-jsonfield
+djangorestframework  # (optional) For the HTTP API

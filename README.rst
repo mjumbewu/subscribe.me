@@ -1,3 +1,5 @@
+A generic subscriptions and notification framework for Django.
+
 Accessing a Subscriber instance from a User
 -------------------------------------------
 

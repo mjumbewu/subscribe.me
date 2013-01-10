@@ -150,7 +150,7 @@ class SubscriptionEmailer (SubscriptionDispatcher):
 
         send_mail(subject, message, from_email, recipient_list)
 
-    def render_subject(self, context)
+    def render_subject(self, context):
         template = get_template(subject_template_name)
         return template.render(context)
 

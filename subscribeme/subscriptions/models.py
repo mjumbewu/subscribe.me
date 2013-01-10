@@ -99,7 +99,7 @@ class Subscriber (auth.User):
 
             other_params = record.feed_params
             for sub in subs:
-                self_params = sub.feed_record
+                self_params = sub.feed_record.feed_params
                 log.debug('Checking parameters %r against %r' %
                           (self_params, other_params))
                 if self_params == other_params:

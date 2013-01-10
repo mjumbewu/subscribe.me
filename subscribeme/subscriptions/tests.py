@@ -10,7 +10,7 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 from mock import Mock
 from nose.tools import *
 
-from subscriptions.feeds import ContentFeed
+from subscriptions.feeds import ContentFeedReader
 from subscriptions.feeds import ContentFeedLibrary
 from subscriptions.feeds import ContentFeedRecordCleaner
 from subscriptions.feeds import ContentFeedRecordUpdater
@@ -24,7 +24,7 @@ from subscriptions.views import SingleSubscriptionMixin
 
 # Models
 
-class DummyFeed (ContentFeed):
+class DummyFeed (ContentFeedReader):
     def get_content(self):
         [1,2,3,4]
 
@@ -33,8 +33,6 @@ class DummyFeed (ContentFeed):
 
 
 class Test_Subscription_save (TestCase):
-    fixtures = []
-
     def setUp(self):
         Subscriber.objects.all().delete()
         ContentFeedRecord.objects.all().delete()
@@ -78,13 +76,13 @@ class Test_Subscriber_subscribe (TestCase):
         ContentFeedRecord.objects.all().delete()
         Subscription.objects.all().delete()
 
-        ContentFeedLibrary().register(ContentFeed, 'generic content feed')
+        ContentFeedLibrary().register(ContentFeedReader, 'generic content feed')
 
         record = self.record = ContentFeedRecord.objects.create(feed_name='generic content feed')
         subscriber = self.subscriber = Subscriber.objects.create()
 
     def test_creates_a_new_subscription_associating_the_user_and_feed(self):
-        feed = ContentFeed()
+        feed = ContentFeedReader()
         feed.get_params = lambda: {}
         subscription = self.subscriber.subscribe(feed)
 
@@ -92,14 +90,14 @@ class Test_Subscriber_subscribe (TestCase):
         self.assert_(subscription.feed_record.is_equivalent_to(self.record))
 
     def test_doesnt_save_subscription_if_commit_is_false(self):
-        feed = ContentFeed()
+        feed = ContentFeedReader()
         feed.get_params = lambda: {}
         subscription = self.subscriber.subscribe(feed, commit=False)
 
         self.assertIsNone(subscription.pk)
 
     def test_raises_NotFound_when_feed_is_not_registered (self):
-        class BogusFeed(ContentFeed):
+        class BogusFeed(ContentFeedReader):
             pass
 
         feed = BogusFeed()
@@ -110,7 +108,7 @@ class Test_Subscriber_subscribe (TestCase):
             pass
 
 
-class ListItemFeed (ContentFeed):
+class ListItemFeed (ContentFeedReader):
     def __init__(self, items):
         self.items = eval(items)
 
@@ -144,6 +142,7 @@ class Test_Subscriber_isSubscribed (TestCase):
     def test_returns_true_when_feed_is_found(self):
         feed2 = ListItemFeed('[1,2,3]')
         record2 = self.library.get_record(feed2)
+#        import pdb; pdb.set_trace()
         subscription = self.subscriber.subscription(feed2, self.library)
 
         assert subscription is not None
@@ -205,57 +204,6 @@ class Test_ContentFeedLibrary_caching:
         assert_is_not(feed, library2.get_feed(record))
 
 # Management commands
-
-from phillyleg.models import LegFile
-class NewLegFilesFeed (ContentFeed):
-    def get_content(self):
-        return LegFile.objects.all()
-
-    def get_last_updated(self, legfile):
-        return legfile.intro_date
-
-    def get_params(self):
-        return {}
-
-class Test_ContentFeedUpdater_update (TestCase):
-
-    def setUp(self):
-
-        key = 0
-        for intro, final in [ (datetime.date(2011, 1, 28),
-                               datetime.date(2011, 1, 29)),
-                              (datetime.date(2010, 7, 28),
-                               datetime.date(2010, 7, 29)),
-                              (datetime.date(2011, 8, 17),
-                               datetime.date(2011, 8, 18)),
-                              (datetime.date(2006, 12, 11),
-                               datetime.date(2006, 12, 12)),
-                              (datetime.date(2006, 12, 12),
-                               datetime.date(2006, 12, 13)) ]:
-            LegFile(intro_date=intro, final_date=final, key=key, date_scraped=datetime.date.today()).save()
-            key += 1
-
-        self.library = ContentFeedLibrary(shared=False)
-        self.library.register(NewLegFilesFeed, 'feed_class_123456')
-        self.record = self.library.get_record(NewLegFilesFeed())
-
-    @istest
-    def changes_the_lastUpdated_of_a_legfiles_feed_to_most_recent_intro_date(self):
-        updater = ContentFeedRecordUpdater()
-
-        updater.update(self.record, self.library)
-
-        assert_equal(self.record.last_updated, datetime.date(2011, 8, 17))
-
-    @istest
-    def returns_date_min_when_no_content_is_available(self):
-        LegFile.objects.all().delete()
-        updater = ContentFeedRecordUpdater()
-
-        updater.update(self.record, self.library)
-
-        assert_equal(self.record.last_updated, datetime.datetime.min)
-
 
 class Test_ContentFeedUpdater_updateAll (TestCase):
 
@@ -388,7 +336,7 @@ class Test_SingleSubscriptionMixin_getContextData:
 
         self.view = SubscriptionView()
         self.view.request = Mock()
-        self.view.feed_data = ContentFeed
+        self.view.feed_data = ContentFeedReader
 
     @istest
     def has_isSubscribed_set_to_False_when_unauthenticated (self):

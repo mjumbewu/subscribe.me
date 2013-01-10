@@ -2,10 +2,10 @@
 An analogy to charachterize the system
 ======================================
 
-A ``ContentFeed`` is a book; it has pages (content). At any given point, you can
-get all the pages that have been written for a book. A ``ContentFeedRecord``
-holds information about how the book (content feed) can be retrieved -- it is
-the card in the catalog for the book.
+A ``ContentFeedReader`` reads the pages (content) of a book (feed). At any given
+point, you can have it read all the pages that have been written for a book. A
+``ContentFeedRecord`` holds information about how the book (content feed) can be
+retrieved -- it is the card in the catalog for the book.
 
 The ``ContentFeedLibrary`` is the librarian and card catalog all in one. It
 knows about all the books and how to retrieve them based on the information in
@@ -22,18 +22,18 @@ anything new each day.
 The courier (dispatcher) will actually not deliver the pages to you from one
 book (feed) at a time. Instead it will take into account all the books that
 you're subscribed to and coallate the content. Interestingly, some of the
-content may appear in more than one book.  And that's ok -- great minds think
-alike!  When the courier gets the same pages from two different authors, it'll
-make sure to deliver that page only once.
+content may appear in more than one book. And that's ok! When the courier gets
+the same pages from two different authors, it'll make sure to deliver that page
+only once.
 
-feeds.py
-========
+feed_readers.py
+===============
 
-class NewLegislationFeedManager (ContentFeedManager):
+class NewLegislationFeedReader (ContentFeedReader):
     def get_query_set(self):
         ...
 
-ContentFeedLibrary.register(NewLegislationFeedManager, 'Newly introduced legislation')
+ContentFeedLibrary.register(NewLegislationFeedReader, 'Newly introduced legislation')
 ContentFeedLibrary.register(...)
 
 sendupdates.py

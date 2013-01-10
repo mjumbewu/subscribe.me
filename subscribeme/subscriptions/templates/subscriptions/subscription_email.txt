@@ -1,0 +1,3 @@
+{% for name, value in content_updates.items %}
+  {{ name }}: {{value}}
+{% endfor %}

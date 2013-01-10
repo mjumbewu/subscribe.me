@@ -16,6 +16,10 @@ class ContentFeedRecord (models.Model):
     """
     Stores information necessary for retrieving a content feed.
 
+    The parameters necessary to construct a ``ContentFeedReader`` are stored
+    in a JSON field. Calling ``get_content`` on a ``ContentFeedReader`` will
+    will return you the content associated with this record.
+
     The query for the ``ContentFeed`` is stored as a pickled iterable object.
     Don't judge me!!! Calling ``get_content`` on a ``ContentFeed`` will return
     you the results of the query. Calling ``get_last_updated`` will return you

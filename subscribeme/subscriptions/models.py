@@ -59,6 +59,9 @@ class Subscriber (auth.User):
     # subscriptions (backref)
     """The set of subscriptions for this user"""
 
+    class Meta:
+        proxy = True
+
     def subscribe(self, feed, library=None, commit=True):
         """Subscribe the user to a content feed."""
         if library is None:

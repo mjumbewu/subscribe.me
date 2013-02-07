@@ -5,10 +5,11 @@ import datetime
 import pickle
 
 from django.test import TestCase
+from collections import defaultdict
 from logging import getLogger
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARN
 from mock import Mock
-from nose.tools import *
+#from nose.tools import *
 
 from subscriptions.feeds import ContentFeedReader
 from subscriptions.feeds import ContentFeedLibrary
@@ -63,7 +64,7 @@ class Test_Subscription_save (TestCase):
     def test_will_retain_its_value_after_being_queryied(self):
         subscription = Subscription.objects.get(pk=self.sub.pk)
 
-        assert_equal(type(subscription.feed_record), type(self.record))
+        self.assertEqual(type(subscription.feed_record), type(self.record))
 
 
 def fail(msg=None):
@@ -155,30 +156,27 @@ class Test_Subscriber_isSubscribed (TestCase):
         assert subscription is None
 
 
-class Test_ContentFeedLibrary_caching:
+class Test_ContentFeedLibrary_caching (TestCase):
 
-    @istest
-    def causes_the_same_content_feed_to_be_returned_on_different_calls_to_getFeed (self):
+    def test_causes_the_same_content_feed_to_be_returned_on_different_calls_to_getFeed (self):
         library = ContentFeedLibrary(shared=False)
         library.register(ListItemFeed, 'li')
 
         feed = ListItemFeed('[1, 2, 3]')
         record = library.get_record(feed)
 
-        assert_is(feed, library.get_feed(record))
+        self.assertIs(feed, library.get_feed(record))
 
-    @istest
-    def causes_the_same_feed_record_to_be_returned_on_different_calls_to_getRecord (self):
+    def test_causes_the_same_feed_record_to_be_returned_on_different_calls_to_getRecord (self):
         library = ContentFeedLibrary(shared=False)
         library.register(ListItemFeed, 'li')
 
         feed = ListItemFeed('[1, 2, 3]')
         record = library.get_record(feed)
 
-        assert_is(record, library.get_record(feed))
+        self.assertIs(record, library.get_record(feed))
 
-    @istest
-    def doesnt_return_the_same_record_from_different_libraries (self):
+    def test_doesnt_return_the_same_record_from_different_libraries (self):
         library1 = ContentFeedLibrary(shared=False)
         library1.register(ListItemFeed, 'li')
 
@@ -188,10 +186,9 @@ class Test_ContentFeedLibrary_caching:
         feed = ListItemFeed('[1, 2, 3]')
         record = library1.get_record(feed)
 
-        assert_is_not(record, library2.get_record(feed))
+        self.assertIsNot(record, library2.get_record(feed))
 
-    @istest
-    def doesnt_return_the_same_feed_from_different_libraries (self):
+    def test_doesnt_return_the_same_feed_from_different_libraries (self):
         library1 = ContentFeedLibrary(shared=False)
         library1.register(ListItemFeed, 'li')
 
@@ -201,7 +198,7 @@ class Test_ContentFeedLibrary_caching:
         feed = ListItemFeed('[1, 2, 3]')
         record = library1.get_record(feed)
 
-        assert_is_not(feed, library2.get_feed(record))
+        self.assertIsNot(feed, library2.get_feed(record))
 
 # Management commands
 
@@ -220,8 +217,7 @@ class Test_ContentFeedUpdater_updateAll (TestCase):
 
         self.feed_records = [library.get_record(feed) for feed in self.feeds]
 
-    @istest
-    def calls_get_last_updated_on_all_feed_objects(self):
+    def test_calls_get_last_updated_on_all_feed_objects(self):
 
         updater = ContentFeedRecordUpdater()
 
@@ -250,15 +246,14 @@ class Test_ContentFeedCleaner_clean (TestCase):
         self.keeper = feed_records[0]
         self.tosser = feed_records[1]
 
-    @istest
-    def removes_unused_feed_records_and_leaves_used_ones(self):
+    def test_removes_unused_feed_records_and_leaves_used_ones(self):
         cleaner = ContentFeedRecordCleaner()
         cleaner.clean()
 
         feed_records = ContentFeedRecord.objects.all()
-        assert_equal(len(feed_records), 1)
-        assert_in(self.keeper, feed_records)
-        assert_not_in(self.tosser, feed_records)
+        self.assertEqual(len(feed_records), 1)
+        self.assertIn(self.keeper, feed_records)
+        self.assertNotIn(self.tosser, feed_records)
 
 
 #class Test_FeedCollector_collectNewContent (TestCase):
@@ -315,7 +310,7 @@ class Test_SerializedObjectField_toPython (TestCase):
         self.assertEqual(result, [])
 
 
-class Test_SingleSubscriptionMixin_getContextData:
+class Test_SingleSubscriptionMixin_getContextData (TestCase):
 
     def setUp(self):
         class DoNothinView (object):
@@ -338,8 +333,7 @@ class Test_SingleSubscriptionMixin_getContextData:
         self.view.request = Mock()
         self.view.feed_data = ContentFeedReader
 
-    @istest
-    def has_isSubscribed_set_to_False_when_unauthenticated (self):
+    def test_has_isSubscribed_set_to_False_when_unauthenticated (self):
         class AnonymousUser (Mock):
             def is_authenticated(self):
                 return False
@@ -347,12 +341,11 @@ class Test_SingleSubscriptionMixin_getContextData:
 
         data = self.view.get_context_data()
 
-        assert_equal(data['is_subscribed'], False)
-        assert_is_none(data['subscription'])
-        assert_is_none(data['subscription_form'])
+        self.assertEqual(data['is_subscribed'], False)
+        self.assertIsNone(data['subscription'])
+        self.assertIsNone(data['subscription_form'])
 
-    @istest
-    def has_isSubscribed_set_to_True_when_subscribed (self):
+    def test_has_isSubscribed_set_to_True_when_subscribed (self):
         class MyUser (Mock):
             def is_authenticated(self):
                 return True
@@ -362,12 +355,11 @@ class Test_SingleSubscriptionMixin_getContextData:
 
         data = self.view.get_context_data()
 
-        assert_equal(data['is_subscribed'], True)
-        assert_is_not_none(data['subscription'])
-        assert_is_none(data['subscription_form'])
+        self.assertEqual(data['is_subscribed'], True)
+        self.assertIsNotNone(data['subscription'])
+        self.assertIsNone(data['subscription_form'])
 
-    @istest
-    def has_isSubscribed_set_to_False_when_not_subscribed (self):
+    def test_has_isSubscribed_set_to_False_when_not_subscribed (self):
         class Subscriber (Mock):
             def subscription(self, feed, library):
                 return None
@@ -382,12 +374,11 @@ class Test_SingleSubscriptionMixin_getContextData:
 
         data = self.view.get_context_data()
 
-        assert_equal(data['is_subscribed'], False)
-        assert_is_none(data['subscription'])
-        assert_is_not_none(data['subscription_form'])
+        self.assertEqual(data['is_subscribed'], False)
+        self.assertIsNone(data['subscription'])
+        self.assertIsNotNone(data['subscription_form'])
 
-    @istest
-    def configures_the_form_correctly_when_not_subscribed (self):
+    def test_configures_the_form_correctly_when_not_subscribed (self):
         # i.e.:
         #  * the form subscriber and feed_record are set to primary keys
         #    instead of objects of types Subscriber and ContentFeedRecord
@@ -410,14 +401,14 @@ class Test_SingleSubscriptionMixin_getContextData:
         data = self.view.get_context_data()
         form = data['subscription_form']
 
-        assert_is_instance(form.data['feed_record'], (int, basestring))
-        assert_is_instance(form.data['subscriber'], (int, basestring))
-        assert_not_in('last_sent', form.fields)
+        self.assertIsInstance(form.data['feed_record'], (int, basestring))
+        self.assertIsInstance(form.data['subscriber'], (int, basestring))
+        self.assertNotIn('last_sent', form.fields)
 
 
-class Test_SubscriptionDispatcher_dispatch:
+class Test_SubscriptionDispatcher_dispatch (TestCase):
 
-    def setup(self):
+    def setUp(self):
         library = self.library = ContentFeedLibrary()
         subscriber = self.subscriber = Mock()
         subscription = self.subscription = Mock()
@@ -427,8 +418,7 @@ class Test_SubscriptionDispatcher_dispatch:
         subscription.feed.feed_params = {'p1': '1', 'p2': '2'}
         subscriber.subscriptions.all = lambda: [subscription]
 
-    @istest
-    def updates_the_lastSent_time_of_the_subscription_to_the_feeds_lastUpdated_time (self):
+    def test_updates_the_lastSent_time_of_the_subscription_to_the_feeds_lastUpdated_time (self):
         mock_feed = Mock()
         self.library.get_feed = lambda *a, **k: mock_feed
         mock_feed.get_updates_since = lambda *a, **k: []
@@ -440,12 +430,12 @@ class Test_SubscriptionDispatcher_dispatch:
 
         dispatcher.dispatch_subscriptions_for(self.subscriber, self.library)
 
-        assert_equal(self.subscription.last_sent, datetime.datetime(2011,8,4,6,50))
+        self.assertEqual(self.subscription.last_sent, datetime.datetime(2011,8,4,6,50))
 
 
-class Test_SubscriptionForm_save:
+class Test_SubscriptionForm_save (TestCase):
 
-    def setup(self):
+    def setUp(self):
         Subscription.objects.all().delete()
         Subscriber.objects.all().delete()
         ContentFeedRecord.objects.all().delete()
@@ -457,8 +447,7 @@ class Test_SubscriptionForm_save:
         self.feed = ListItemFeed('[1, 2, 3]')
         self.feed_record = self.library.get_record(self.feed)
 
-    @istest
-    def creates_a_subscription_for_the_subscriber_to_the_feed (self):
+    def test_creates_a_subscription_for_the_subscriber_to_the_feed (self):
         form = SubscriptionForm({'subscriber':self.subscriber.pk,
                                  'feed_record':self.feed_record.pk})
 

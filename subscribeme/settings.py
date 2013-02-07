@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     # 3rd-party reusable apps
     'social_auth',
     'south',
+    'crispy_forms',
 
     # Project apps
     'subscriptions',

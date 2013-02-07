@@ -18,6 +18,7 @@ django-social-auth
 # Templating
 # ====================
 django-jstemplate
+django-crispy-forms
 
 
 
@@ -34,3 +35,4 @@ psycopg2
 # ====================
 django-jsonfield
 djangorestframework  # (optional) For the HTTP API
+django-sendsms  # (optional) For SMS notifications

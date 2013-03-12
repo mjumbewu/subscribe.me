@@ -58,7 +58,7 @@ class ContentFeedRecord (models.Model):
 
 # Subscriber
 
-class Subscriber (auth.User):
+class Subscriber (auth.User): # TODO: Should use the configured User model, not necessarily auth.User
 
     # subscriptions (backref)
     """The set of subscriptions for this user"""

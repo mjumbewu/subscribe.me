@@ -12,22 +12,17 @@ from subscriptions.fields import SerializedObjectField
 log = logging.getLogger(__name__)
 
 
-class ContentFeedRecord (models.Model):
+class FeedRecord (models.Model):
     """
     Stores information necessary for retrieving a content feed.
 
-    The parameters necessary to construct a ``ContentFeedReader`` are stored
-    in a JSON field. Calling ``get_content`` on a ``ContentFeedReader`` will
+    The parameters necessary to construct a ``FeedReader`` are stored
+    in a JSON field. Calling ``get_content`` on a ``FeedReader`` will
     will return you the content associated with this record.
 
-    The query for the ``ContentFeed`` is stored as a pickled iterable object.
-    Don't judge me!!! Calling ``get_content`` on a ``ContentFeed`` will return
-    you the results of the query. Calling ``get_last_updated`` will return you
-    the last time the given set of content was updated.
-
-    To create a ``ContentFeedRecord`` object, use the ``factory`` method. This will
+    To create a ``FeedRecord`` object, use the ``factory`` method. This will
     take your parameters and serialize them for you, returning a valid
-    ``ContentFeedRecord`` object. You must specify a last_updated_calc callable,
+    ``FeedRecord`` object. You must specify a last_updated_calc callable,
     because each set of content may have a different way of determining when it
     was last updated.
 
@@ -111,7 +106,7 @@ class Subscriber (auth.User): # TODO: Should use the configured User model, not 
 
 class Subscription (models.Model):
     subscriber = models.ForeignKey('Subscriber', related_name='subscriptions')
-    feed_record = models.ForeignKey('ContentFeedRecord')
+    feed_record = models.ForeignKey('FeedRecord')
     last_sent = models.DateTimeField(blank=True)
 
     def __unicode__(self):

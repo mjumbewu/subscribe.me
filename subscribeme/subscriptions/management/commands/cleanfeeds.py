@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from subscriptions.feeds import ContentFeedRecordCleaner
+from subscriptions.feeds import FeedRecordCleaner
 
 
 class Command(BaseCommand):
@@ -8,5 +8,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get rid of unused records
-        cleaner = ContentFeedRecordCleaner()
+        cleaner = FeedRecordCleaner()
         cleaner.clean()

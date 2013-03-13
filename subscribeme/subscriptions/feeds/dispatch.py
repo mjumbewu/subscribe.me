@@ -1,3 +1,4 @@
+from collections import defaultdict
 from email.mime.text import MIMEText
 
 from django.conf import settings
@@ -8,7 +9,7 @@ from django.template.loader import get_template
 from django.utils.encoding import smart_str, smart_unicode
 
 from ..models import SubscriptionDispatchRecord
-from .library import ContentFeedLibrary
+from .library import FeedLibrary
 
 from logging import getLogger
 log = getLogger(__name__)
@@ -108,7 +109,7 @@ class SubscriptionDispatcher (object):
         log.debug('Dispatching subscriptions for %s' % (subscriber))
 
         if library is None:
-            library = ContentFeedLibrary()
+            library = FeedLibrary()
 
         subscriptions = subscriber.subscriptions.all()
 

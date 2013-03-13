@@ -26,7 +26,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Subscription, SubscriptionAdmin)
 admin.site.register(models.Subscriber)
-admin.site.register(models.ContentFeedRecord)
+admin.site.register(models.FeedRecord)
 
 #admin.site.register(models.SearchSubscription)
 #admin.site.register(models.EmailChannel)

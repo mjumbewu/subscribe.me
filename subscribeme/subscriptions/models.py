@@ -28,7 +28,7 @@ class FeedRecord (models.Model):
 
     """
 
-    feed_name = models.CharField(max_length=256)
+    feed_type = models.CharField(max_length=256)
     """The identifier for the content feed type registered with the library"""
 
     feed_params = JSONField()
@@ -39,10 +39,10 @@ class FeedRecord (models.Model):
     """The stored value of the last time content in the feed was updated."""
 
     def __unicode__(self):
-        return u'a %s feed' % (self.feed_name,)
+        return u'a %s feed with parameters %r' % (self.feed_type, self.feed_params)
 
     def is_equivalent_to(self, other):
-        if self.feed_name != other.feed_name:
+        if self.feed_type != other.feed_type:
             return False
 
         if self.feed_params != other.feed_params:
@@ -64,8 +64,8 @@ class Subscriber (auth.User): # TODO: Should use the configured User model, not 
     def subscribe(self, feed, library=None, commit=True):
         """Subscribe the user to a content feed."""
         if library is None:
-            from feeds import ContentFeedLibrary
-            library = ContentFeedLibrary()
+            from feeds import FeedLibrary
+            library = FeedLibrary()
 
         record = library.get_record(feed)
         subscription = Subscription(subscriber=self, feed_record=record)
@@ -76,8 +76,8 @@ class Subscriber (auth.User): # TODO: Should use the configured User model, not 
     def subscription(self, feed, library=None):
         """Returns the subscription to the given content feed."""
         if library is None:
-            from feeds import ContentFeedLibrary
-            library = ContentFeedLibrary()
+            from feeds import FeedLibrary
+            library = FeedLibrary()
 
         log.debug('Checking whether %s is subscribed to %s at %s' %
                   (self, feed, library))

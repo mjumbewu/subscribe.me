@@ -11,11 +11,11 @@ import subscriptions.models as models
 
 class SingleSubscriptionMixin (object):
     def get_content_feed_library(self):
-        """Return a ContentFeedLibrary to be used for the subscriptions"""
-        return feeds.ContentFeedLibrary()
+        """Return a FeedLibrary to be used for the subscriptions"""
+        return feeds.FeedLibrary()
 
     def get_content_feed(self):
-        """A factory for the ContentFeed object that describes this content feed"""
+        """A factory for the FeedRecord object that describes this content feed"""
         raise NotImplementedError()
 
     def get_subscription(self, feed):

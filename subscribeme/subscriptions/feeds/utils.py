@@ -1,12 +1,12 @@
 from ..models import Subscription
-from ..models import ContentFeedRecord
-from .library import ContentFeedLibrary
+from ..models import FeedRecord
+from .library import FeedLibrary
 
 from logging import getLogger
 log = getLogger(__name__)
 
 
-class ContentFeedRecordUpdater (object):
+class FeedRecordUpdater (object):
     """Responsible for updating the metadata in a content feed"""
 
     def update(self, record, library=None):
@@ -18,7 +18,7 @@ class ContentFeedRecordUpdater (object):
         course; it may be slow.
         """
         if library is None:
-            library = ContentFeedLibrary()
+            library = FeedLibrary()
 
         feed = library.get_feed(record)
 
@@ -39,7 +39,7 @@ class ContentFeedRecordUpdater (object):
             self.update(record, library)
 
 
-class ContentFeedRecordCleaner (object):
+class FeedRecordCleaner (object):
     """Responsible for identifying and removing all unused feeds"""
 
     def clean(self, library=None):
@@ -49,4 +49,4 @@ class ContentFeedRecordCleaner (object):
 
         """
         used_record_ids = Subscription.objects.values('feed_record__id').distinct()
-        ContentFeedRecord.objects.exclude(id__in=used_record_ids).delete()
+        FeedRecord.objects.exclude(id__in=used_record_ids).delete()

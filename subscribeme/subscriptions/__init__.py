@@ -4,7 +4,7 @@ An analogy to charachterize the system
 
 A ``ContentFeedReader`` reads the pages (content) of a book (feed). At any given
 point, you can have it read all the pages that have been written for a book. A
-``ContentFeedRecord`` holds information about how the book (content feed) can be
+``FeedRecord`` holds information about how the book (content feed) can be
 retrieved -- it is the card in the catalog for the book.
 
 The ``ContentFeedLibrary`` is the librarian and card catalog all in one. It

@@ -1,16 +1,16 @@
-from ..models import ContentFeedRecord
+from ..models import FeedRecord
 
 from logging import getLogger
 log = getLogger(__name__)
 
 
-class ContentFeedLibrary (object):
+class FeedLibrary (object):
 
     feeds = {}
-    """Map of { feed_name : ContentFeedClass }"""
+    """Map of { feed_type_name : FeedClass }"""
 
     _reverse = {}
-    """Map of { ContentFeedClass : feed_name }. For reverse-lookup"""
+    """Map of { FeedClass : feed_type_name }. For reverse-lookup"""
 
     _feed_cache = {}
     _record_cache = {}
@@ -22,10 +22,10 @@ class ContentFeedLibrary (object):
             self._feed_cache = {}
             self._record_cache = {}
 
-    def register(self, ContentFeedClass, name):
-        """Add the given manager class to the registry by the given name."""
-        self.feeds[name] = ContentFeedClass
-        self._reverse[ContentFeedClass] = name
+    def register(self, FeedType, type_name):
+        """Add the given feed type to the registry by the given type name."""
+        self.feeds[type_name] = FeedType
+        self._reverse[FeedType] = type_name
 
     def _cache(self, feed, record):
         self._feed_cache[record] = feed
@@ -37,9 +37,9 @@ class ContentFeedLibrary (object):
         if record in self._feed_cache:
             return self._feed_cache[record]
 
-        ContentFeedClass = self.feeds[record.feed_name]
+        FeedType = self.feeds[record.feed_type]
         kwargs = record.feed_params
-        feed = ContentFeedClass(**kwargs)
+        feed = FeedType(**kwargs)
 
         self._cache(feed, record)
 
@@ -53,18 +53,18 @@ class ContentFeedLibrary (object):
         if feed in self._record_cache:
             return self._record_cache[feed]
 
-        ContentFeedClass = feed.__class__
+        FeedType = feed.__class__
         try:
-            name = self._reverse[ContentFeedClass]
+            type_name = self._reverse[FeedType]
         except KeyError:
             log.debug('%s is not registered in the library: %s' %
                 (feed.__class__.__name__, self.feeds))
-            raise ContentFeedClass.NotFound(
+            raise FeedType.NotFound(
                 '%s is not registered in the library' %
                 (feed.__class__.__name__,))
 
-        record = ContentFeedRecord()
-        record.feed_name = name
+        record = FeedRecord()
+        record.feed_type = type_name
         record.feed_params = feed.get_params()
         record.save()
 

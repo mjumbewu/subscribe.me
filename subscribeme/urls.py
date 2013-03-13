@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 from django.conf.urls.defaults import patterns, include, url
 from django.contrib import admin
+from django.contrib.auth import urls as auth_urls
 import subscriptions.urls
 admin.autodiscover()
 
@@ -20,4 +21,7 @@ urlpatterns = patterns('',
     url(r'^dashboard$',
         main.views.DashboardView.as_view(),
         name='main_dashboard'),
+
+    url(r'^accounts/',
+        include(auth_urls)),
 )

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <ul>
+    {% for subscription in subscription_list %}
+    <li><a href="{% url 'subscription_detail' subscription.pk %}">{{ subscription }}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}

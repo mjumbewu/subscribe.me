@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div>
+    {{ subscription }}
+    <a href="{% url 'delete_subscription' subscription.pk %}">Unsubscribe</a>
+  </div>
+{% endblock %}

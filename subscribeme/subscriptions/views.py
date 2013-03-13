@@ -2,8 +2,11 @@ import logging as log
 
 from django.views import generic as views
 from django import http
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.utils.decorators import method_decorator
 
 import subscriptions.feeds as feeds
 import subscriptions.forms as forms
@@ -67,15 +70,71 @@ class SingleSubscriptionMixin (object):
         return context_data
 
 
-class CreateSubscriptionView (views.CreateView):
+# Mixins
+
+class LoginRequiredMixin (object):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class SubscriberAccessibleMixin (object):
+    def get_subscription(self):
+        return super(SubscriberAccessibleMixin, self).get_object()
+
+    def user_can_access(self, user):
+        self.subscription = self.get_subscription()
+        return user.is_superuser or (self.subscription.subscriber == user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_is_subscriber = user_passes_test(self.user_can_access)
+        view_func = user_is_subscriber(super(SubscriberAccessibleMixin, self).dispatch)
+        return view_func(request, *args, **kwargs)
+
+
+# Subscriptions
+
+class SubscriptionListView (LoginRequiredMixin, views.ListView):
+    model = models.Subscription
+
+    def get_queryset(self):
+        queryset = super(SubscriptionListView, self).get_queryset()
+        return queryset.filter(subscriber=self.request.user)
+
+
+class SubscriptionDetailView (SubscriberAccessibleMixin, views.DetailView):
+    model = models.Subscription
+
+
+class CreateSubscriptionView (SubscriberAccessibleMixin, views.CreateView):
     model = models.Subscription
 
     def get_success_url(self):
-        return self.request.REQUEST['success']
+        return reverse('subscription_detail', args=[self.object.pk])
 
 
-class DeleteSubscriptionView (views.DeleteView):
+class DeleteSubscriptionView (SubscriberAccessibleMixin, views.DeleteView):
     model = models.Subscription
+
+    def get_success_url(self):
+        return reverse('subscription_list')
+
+
+# Feed records
+
+class FeedRecordDetailView (views.DetailView):
+    model = models.FeedRecord
+
+
+class CreateFeedRecordView (views.CreateView):
+    model = models.FeedRecord
+
+    def get_success_url(self):
+        return reverse('feedrecord_detail', args=[self.object.pk])
+
+
+class DeleteFeedRecordView (views.DeleteView):
+    model = models.FeedRecord
 
     def get_success_url(self):
         return self.request.REQUEST['success']
@@ -83,7 +142,7 @@ class DeleteSubscriptionView (views.DeleteView):
 
 def subscribe(request):
     subscriber = request.user.subscriber
-    feed = ContentFeed.object.get(request.REQUEST['feed'])
+    feed_record = FeedRecord.object.get(request.REQUEST['feed'])
     redirect_to = request.REQUEST['next']
 
     subscriber.subscribe(feed)

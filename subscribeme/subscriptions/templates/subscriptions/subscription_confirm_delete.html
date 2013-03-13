@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <form method="POST">
+    {% csrf_token %}
+    Are you sure you want to unsubscribe from {{ subscription }}?
+    <button type="submit">Yes</button>
+  </form>
+{% endblock %}

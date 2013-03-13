@@ -1,3 +1,13 @@
+from os import path
+
+def projectpath(rel_path):
+    """
+    Convert a path relative to the project root into an absolute path.
+    """
+    project_path = path.dirname(__file__)
+    abspath = path.join(project_path, rel_path)
+    return abspath
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -26,7 +36,9 @@ ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 STATIC_ROOT = ''
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ()
+STATICFILES_DIRS = (
+    projectpath('static'),
+)
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -35,7 +47,9 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '0r19kk&q0k!f42kwc=82wumo=x&g0o&pe2f(s^6htsn7=mdvyq'
 
-TEMPLATE_DIRS = ()
+TEMPLATE_DIRS = (
+    projectpath('templates')
+)
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',

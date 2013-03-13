@@ -3,7 +3,7 @@ import logging
 from django.db import models
 from jsonfield import JSONField
 
-import django.contrib.auth.models as auth
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
@@ -53,7 +53,7 @@ class FeedRecord (models.Model):
 
 # Subscriber
 
-class Subscriber (auth.User): # TODO: Should use the configured User model, not necessarily auth.User
+class Subscriber (User): # TODO: Should use the configured User model, not necessarily auth.User
 
     # subscriptions (backref)
     """The set of subscriptions for this user"""
@@ -105,8 +105,8 @@ class Subscriber (auth.User): # TODO: Should use the configured User model, not 
 
 
 class Subscription (models.Model):
-    subscriber = models.ForeignKey('Subscriber', related_name='subscriptions')
-    feed_record = models.ForeignKey('FeedRecord')
+    subscriber = models.ForeignKey(User, related_name='subscriptions')
+    feed_record = models.ForeignKey(FeedRecord)
     last_sent = models.DateTimeField(blank=True)
 
     def __unicode__(self):

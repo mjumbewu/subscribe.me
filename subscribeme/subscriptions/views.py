@@ -102,15 +102,21 @@ class SubscriptionListView (LoginRequiredMixin, views.ListView):
         return queryset.filter(subscriber=self.request.user)
 
 
-class SubscriptionDetailView (SubscriberAccessibleMixin, views.DetailView):
+class CreateSubscriptionView (LoginRequiredMixin, views.CreateView):
     model = models.Subscription
-
-
-class CreateSubscriptionView (SubscriberAccessibleMixin, views.CreateView):
-    model = models.Subscription
+    form_class = forms.UserSubscriptionForm
 
     def get_success_url(self):
         return reverse('subscription_detail', args=[self.object.pk])
+
+    def get_form_kwargs(self):
+        kwargs = super(CreateSubscriptionView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class SubscriptionDetailView (SubscriberAccessibleMixin, views.DetailView):
+    model = models.Subscription
 
 
 class DeleteSubscriptionView (SubscriberAccessibleMixin, views.DeleteView):

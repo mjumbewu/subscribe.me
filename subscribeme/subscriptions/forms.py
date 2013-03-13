@@ -1,10 +1,10 @@
-import django.forms
+from django import forms
 from django.contrib import auth
 
 import subscriptions.models as models
 
 
-class SubscriptionForm (django.forms.ModelForm):
+class SubscriptionForm (forms.ModelForm):
 
     # TODO: This form currently takes the feed_record ID, which means that the
     # feed record has to be created before the form is served/processed.  This
@@ -22,6 +22,17 @@ class SubscriptionForm (django.forms.ModelForm):
         model = models.Subscription
         exclude = ('last_sent',)
         widgets = {
-            'feed_record' : django.forms.HiddenInput(),
-            'subscriber' : django.forms.HiddenInput(),
+            'feed_record' : forms.HiddenInput(),
+            'subscriber' : forms.HiddenInput(),
         }
+
+
+class UserSubscriptionForm (forms.ModelForm):
+
+    class Meta:
+        model = models.Subscription
+        exclude = ('last_sent', 'subscriber')
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(UserSubscriptionForm, self).__init__(*args, **kwargs)
+        self.instance.subscriber = user

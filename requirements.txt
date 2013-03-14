@@ -35,3 +35,11 @@ psycopg2
 django-jsonfield
 djangorestframework  # (optional) For the HTTP API
 django-sendsms  # (optional) For SMS notifications
+
+
+
+# =====================
+# Feeds (optional)
+# =====================
+feedparser
+python-dateutil

@@ -64,7 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'subscribeme.urls'
+ROOT_URLCONF = 'urls'
 
 
 AUTHENTICATION_BACKENDS = (

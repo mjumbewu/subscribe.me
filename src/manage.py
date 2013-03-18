@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 from django.core.management import execute_manager
+from os.path import abspath, dirname, join
 import imp
+import sys
+
+sys.path.append(abspath(join(dirname(__file__), '..', 'libs')))
+sys.path.append(dirname(__file__))
+
 try:
     imp.find_module('settings') # Assumed to be in the same directory.
 except ImportError:

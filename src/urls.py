@@ -20,6 +20,9 @@ urlpatterns = patterns('',
     url(r'^subscriptions/',
         include(subscriptions.urls)),
 
+    url(r'^accounts/logout/$',
+        'django.contrib.auth.views.logout',
+        {'next_page': '/'}, name='logout'),
     url(r'^accounts/',
         include(auth_urls)),
 )

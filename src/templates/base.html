@@ -94,12 +94,7 @@
             <div class="fill">
                 <div class="container">
                     <a href="{% url 'main_landing' %}" class="brand" href="#">Subscribe.Me</a>
-<!--                    <form action="" class="pull-right">-->
-<!--                        <input class="input-small" type="text" placeholder="Username">-->
-<!--                        <input class="input-small" type="password" placeholder="Password">-->
-<!--                        <button class="btn" type="submit">Sign in</button>-->
-<!--                    </form>-->
-                    <p class="pull-right">Logged in as <a href="#">username</a></p>
+                    {% include "partials/_header_auth.html" %}
                 </div>
             </div>
         </div>

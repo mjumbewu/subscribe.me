@@ -7,4 +7,7 @@
     {{ form|crispy }}
     <input type="submit">
   </form>
+
+  <p>Can't find the feed for you? <a href="{% url 'create_feedrecord' %}">Add a new feed</a>.
+    You can also specifically <a href="{% url 'create_rss_feedrecord' %}">add an RSS feed</a>.</p>
 {% endblock %}

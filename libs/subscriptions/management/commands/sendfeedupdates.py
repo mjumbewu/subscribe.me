@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from subscriptions.feeds import import_all_feeds
+from subscriptions.feeds import autodiscover
 from subscriptions.feeds import SubscriptionEmailer
 from subscriptions.models import Subscriber
 
@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Assuming that the feeds have been updated
 
-        import_all_feeds()
+        autodiscover()
         dispatcher = SubscriptionEmailer()
 
         subscribers = Subscriber.objects.all()

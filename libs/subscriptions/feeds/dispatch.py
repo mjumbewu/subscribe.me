@@ -3,16 +3,33 @@ from email.mime.text import MIMEText
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.manager import Manager
 from django.template import Context
 from django.template.loader import get_template
 from django.utils.encoding import smart_str, smart_unicode
+from django.utils.timezone import datetime, now, utc
+import json
 
 from ..models import SubscriptionDispatchRecord
 from .library import FeedLibrary
 
 from logging import getLogger
 log = getLogger(__name__)
+
+
+class CustomJSONEncoder(DjangoJSONEncoder):
+    """
+    JSONEncoder subclass that knows how to encode date/time and decimal types.
+    """
+    def default(self, o):
+        from time import struct_time, mktime
+
+        # See "Date Time String Format" in the ECMA-262 specification.
+        if isinstance(o, struct_time):
+            return self.default(datetime.fromtimestamp(mktime(o)))
+        else:
+            return super(CustomJSONEncoder, self).default(o)
 
 
 class SubscriptionDispatcher (object):
@@ -46,7 +63,7 @@ class SubscriptionDispatcher (object):
         """
         log.debug('Checking for updates to %s in %s' % (subscriptions, library))
 
-        content_changes = defaultdict(lambda: [dict(), datetime.min])
+        content_changes = defaultdict(lambda: [dict(), datetime.min.replace(tzinfo=utc)])
 
         for subscription in subscriptions:
             feed = library.get_feed(subscription.feed_record)
@@ -55,7 +72,7 @@ class SubscriptionDispatcher (object):
             # was last sent (this assumes that the feed_record has been
             # updated to accurately represent the feed).
             if subscription.last_sent < subscription.feed_record.last_updated:
-                new_contents = feed.get_updates_since(subscription.last_sent)
+                new_contents = feed.get_updated_since(subscription.last_sent)
 
                 for item in new_contents:
                     changes, change_time = feed.get_changes_to(item, subscription.last_sent)
@@ -127,10 +144,10 @@ class SubscriptionDispatcher (object):
         as having been sent.
         """
         content_updates = dict([(unicode(key), value) for key, value in content_updates.items()])
-        content = 'Content updates:\n%s\nMessage:\n%s' % (json.dumps(content_updates, indent=2, cls=DjangoJSONEncoder), delivery)
+        content = 'Content updates:\n%s\nMessage:\n%s' % (json.dumps(content_updates, indent=2, cls=CustomJSONEncoder), delivery)
         for subscription in subscriptions:
             SubscriptionDispatchRecord.objects.create(
-                when=datetime.now(),
+                when=now(),
                 subscription=subscription,
                 dispatcher=self.__class__.__name__,
                 content=content
@@ -152,8 +169,8 @@ class SubscriptionEmailer (SubscriptionDispatcher):
         send_mail(subject, message, from_email, recipient_list)
 
     def render_subject(self, context):
-        template = get_template(subject_template_name)
-        return template.render(context)
+        template = get_template(self.subject_template_name)
+        return template.render(Context(context))
 
     def deliver_to(self, subscriber, delivery_text):
         """
@@ -161,5 +178,5 @@ class SubscriptionEmailer (SubscriptionDispatcher):
         """
         email_addr = subscriber.email
         email_body = delivery_text
-        email_subject = self.render_subject({'subscriber': subscriber, 'text': delivery_text, 'today': date.today()})
+        email_subject = self.render_subject({'subscriber': subscriber, 'text': delivery_text, 'today': datetime.today()}).strip()
         self.send_email(email_addr, email_body, email_subject)

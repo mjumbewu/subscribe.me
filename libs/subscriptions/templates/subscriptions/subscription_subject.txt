@@ -1,1 +1,1 @@
-Your subscription digest for {{ today }}
+Your subscription digest for {{ today|date }}

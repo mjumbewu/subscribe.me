@@ -37,7 +37,11 @@ class FeedLibrary (object):
         if record in self._feed_cache:
             return self._feed_cache[record]
 
-        FeedType = self.feeds[record.feed_type]
+        try:
+            FeedType = self.feeds[record.feed_type]
+        except KeyError:
+            raise KeyError('No feed with type %r registered' % record.feed_type)
+
         kwargs = record.feed_params
         feed = FeedType(**kwargs)
 

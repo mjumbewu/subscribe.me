@@ -5,7 +5,7 @@
 <!--                    </form>-->
 
 {% if user.is_authenticated %}
-    <p class="pull-right">Logged in as <a href="#">{{ user.username }}</a> | <a href="{% url 'logout' %}">Log out</a></p>
+    <p class="pull-right">Logged in as <a href="{% url 'subscription_list' %}">{{ user.username }}</a> | <a href="{% url 'logout' %}">Log out</a></p>
 {% else %}
     <p class="pull-right"><a href="{% url 'login' %}">Log in</a></p>
 {% endif %}

@@ -1,9 +1,9 @@
-def import_all_feeds():
+def autodiscover():
     """
     Import the feeds module from all the installed apps. The assumption is that
     apps will register their feed classes in that module. If not, they're SOL.
     """
-    from django.conf.settings import settings
+    from django.conf import settings
     for app in settings.INSTALLED_APPS:
         feeds_mod = '.'.join([app, 'feed_readers'])
         try:
@@ -12,7 +12,7 @@ def import_all_feeds():
             pass
 
 
-class ContentFeedReader (object):
+class FeedReader (object):
     def get_content(self):
         """
         Returns the content items that appear in this feed.
@@ -53,7 +53,7 @@ class ContentFeedReader (object):
         pass
 
 
-class TimestampedModelFeedReader (ContentFeedReader):
+class TimestampedModelFeedReader (FeedReader):
     def __init__(self, app_label, model_name, object_id, updated_datetime_field='updated_datetime'):
         self.app_label = app_label
         self.model_name = model_name
@@ -85,7 +85,36 @@ class TimestampedModelFeedReader (ContentFeedReader):
 
     def get_changes_to(self, item, since):
         # We don't know which attributes
-        pass
+        item, getattr(item, self.updated_datetime_field)
 
-class RSSFeedReader (ContentFeedReader):
-    pass
+class RSSFeedReader (FeedReader):
+    def __init__(self, url):
+        self.url = url
+
+    def get_content(self):
+        import feedparser
+        self.rss = feedparser.parse(self.url)
+        return self.rss.entries
+
+    def get_last_updated_time(self, entry):
+        from dateutil.parser import parse
+        updated_time = parse(entry.published)
+        return updated_time
+
+    def get_updated_since(self, previous):
+        from dateutil.parser import parse
+        entries = self.get_content()
+        return [entry for entry in entries if parse(entry.published) > previous]
+
+    def get_changes_to(self, entry, since):
+        """
+        Returns a dictionary representing the changes to the item.  The nature
+        of this dictionary may vary depending on the item type.
+        """
+        from dateutil.parser import parse
+        return entry, parse(entry.published)
+
+
+from subscriptions.feeds.library import FeedLibrary
+library = FeedLibrary()
+library.register(RSSFeedReader, 'rss')

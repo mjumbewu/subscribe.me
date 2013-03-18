@@ -1,6 +1,6 @@
-from ..models import Subscription
-from ..models import FeedRecord
-from .library import FeedLibrary
+from subscriptions.models import Subscription
+from subscriptions.models import FeedRecord
+from subscriptions.feeds.library import FeedLibrary
 
 from logging import getLogger
 log = getLogger(__name__)
@@ -25,7 +25,7 @@ class FeedRecordUpdater (object):
         all_content = feed.get_content()
         latest = None
         if all_content:
-            latest = max(feed.get_last_updated(item) for item in all_content)
+            latest = feed.get_last_updated_time()
 
         if latest is None:
             latest = datetime.min

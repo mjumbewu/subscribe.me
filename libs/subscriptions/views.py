@@ -24,7 +24,7 @@ class SingleSubscriptionMixin (object):
     def get_subscription(self, feed):
         if self.request.user and self.request.user.is_authenticated():
             try:
-                subscriber = self.request.user.subscriber
+                subscriber = self.request.user
 
             # If the user doesn't have a subscriber attribute, then they must
             # not be subscribed.
@@ -39,7 +39,7 @@ class SingleSubscriptionMixin (object):
     def get_subscription_form(self, feed):
         if self.request.user and self.request.user.is_authenticated():
             try:
-                subscriber = self.request.user.subscriber
+                subscriber = self.request.user
 
             except models.Subscriber.DoesNotExist:
                 return None
@@ -48,9 +48,9 @@ class SingleSubscriptionMixin (object):
 
             if subscription is None:
                 library = self.get_content_feed_library()
-                form = forms.SubscriptionForm(
-                    {'feed_record': library.get_record(feed).pk,
-                     'subscriber': subscriber.pk})
+                form = forms.UserSubscriptionForm(
+                    initial={'feed_record': library.get_record(feed).pk},
+                    user=subscriber)
                 return form
 
         return None
@@ -70,7 +70,27 @@ class SingleSubscriptionMixin (object):
         return context_data
 
 
-# Mixins
+def subscribe(request):
+    subscriber = request.user.subscriber
+    feed_record = FeedRecord.object.get(request.REQUEST['feed'])
+    redirect_to = request.REQUEST['next']
+
+    subscriber.subscribe(feed)
+    return HttpResponseRedirect(redirect_to)
+
+
+#    def get_subscription_form(self):
+#        pass
+#
+#    def __call__(self, request):
+#        if request.method == 'POST':
+#
+#            subs_form = self.get_subscription_form()
+#        else:
+#            return super(SubscribeToSearchView, self).__call__(request)
+
+
+# View Mixins
 
 class LoginRequiredMixin (object):
     @method_decorator(login_required)
@@ -92,7 +112,7 @@ class SubscriberAccessibleMixin (object):
         return view_func(request, *args, **kwargs)
 
 
-# Subscriptions
+# Subscription Views
 
 class SubscriptionListView (LoginRequiredMixin, views.ListView):
     model = models.Subscription
@@ -126,7 +146,7 @@ class DeleteSubscriptionView (SubscriberAccessibleMixin, views.DeleteView):
         return reverse('subscription_list')
 
 
-# Feed records
+# Feed Record Views
 
 class FeedRecordDetailView (views.DetailView):
     model = models.FeedRecord
@@ -134,6 +154,15 @@ class FeedRecordDetailView (views.DetailView):
 
 class CreateFeedRecordView (views.CreateView):
     model = models.FeedRecord
+    form_class = forms.FeedRecordForm
+
+    def get_success_url(self):
+        return reverse('feedrecord_detail', args=[self.object.pk])
+
+
+class CreateRssFeedRecordView (views.CreateView):
+    model = models.FeedRecord
+    form_class = forms.RssFeedRecordForm
 
     def get_success_url(self):
         return reverse('feedrecord_detail', args=[self.object.pk])
@@ -144,23 +173,3 @@ class DeleteFeedRecordView (views.DeleteView):
 
     def get_success_url(self):
         return self.request.REQUEST['success']
-
-
-def subscribe(request):
-    subscriber = request.user.subscriber
-    feed_record = FeedRecord.object.get(request.REQUEST['feed'])
-    redirect_to = request.REQUEST['next']
-
-    subscriber.subscribe(feed)
-    return HttpResponseRedirect(redirect_to)
-
-
-#    def get_subscription_form(self):
-#        pass
-#
-#    def __call__(self, request):
-#        if request.method == 'POST':
-#
-#            subs_form = self.get_subscription_form()
-#        else:
-#            return super(SubscribeToSearchView, self).__call__(request)

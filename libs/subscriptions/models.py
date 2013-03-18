@@ -1,5 +1,5 @@
-import datetime
 import logging
+from django.utils.timezone import datetime, utc, now
 from django.db import models
 from jsonfield import JSONField
 
@@ -35,7 +35,7 @@ class FeedRecord (models.Model):
     """A JSON blob representing the parameters used to retrieve the content
        feed from the library"""
 
-    last_updated = models.DateTimeField(default=datetime.datetime.min)
+    last_updated = models.DateTimeField(default=datetime.min.replace(tzinfo=utc))
     """The stored value of the last time content in the feed was updated."""
 
     def __unicode__(self):
@@ -85,11 +85,11 @@ class Subscriber (User): # TODO: Should use the configured User model, not neces
         record = library.get_record(feed)
         try:
             subs = self.subscriptions.select_related() \
-                .filter(feed_record__feed_name=record.feed_name)
+                .filter(feed_record__feed_type=record.feed_type)
 
             if not subs:
                 log.debug('No subscription record found with the name %s' %
-                          (record.feed_name,))
+                          (record.feed_type,))
                 return None
 
             other_params = record.feed_params
@@ -122,7 +122,7 @@ class Subscription (models.Model):
         # We could use Django's built-in ability to make this an auto_now_add
         # field, but then we couldn't change the value when we want.
         if not self.id:
-            self.last_sent = datetime.datetime.now()
+            self.last_sent = now()
         super(Subscription, self).save(*args, **kwargs)
 
 

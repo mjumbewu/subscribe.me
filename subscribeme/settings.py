@@ -108,7 +108,6 @@ INSTALLED_APPS = (
 
     # Project apps
     'subscriptions',
-    'main',
 )
 
 # A sample logging configuration. The only tangible logging

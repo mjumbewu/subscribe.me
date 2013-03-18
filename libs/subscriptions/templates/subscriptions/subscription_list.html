@@ -6,4 +6,6 @@
     <li><a href="{% url 'subscription_detail' subscription.pk %}">{{ subscription }}</a></li>
     {% endfor %}
   </ul>
+
+  <p><a href="{% url 'create_subscription' %}">Add a subscription</a></p>
 {% endblock %}
